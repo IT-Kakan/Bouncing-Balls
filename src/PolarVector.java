@@ -15,5 +15,4 @@ public class PolarVector {
 	public double getTheta() {
 		return theta;
 	}
-
 }
