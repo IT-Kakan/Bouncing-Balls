@@ -35,7 +35,6 @@ public class DummyModel implements IBouncingBallsModel {
 	@Override
 	public void tick(double deltaT) {	
 		for (Ball b : balls) {
-			
 			if (ballHitsWall(b)) {
 				b.reverseXVelocity();
 			}
@@ -50,16 +49,10 @@ public class DummyModel implements IBouncingBallsModel {
 					
 					//Testa lodrät kollision
 					
-					
 					b.reverseYVelocity();
-					b2.reverseYVelocity();
-					
-					
-					
+					b2.reverseYVelocity();		
 				}
 			}
-			
-			
 			b.tick(deltaT);
 		}
 		
@@ -111,7 +104,7 @@ public class DummyModel implements IBouncingBallsModel {
 		double xDiff = Math.abs(first.getX() - second.getX());
 		double yDiff = Math.abs(first.getY() - second.getY());
 		double distanceBetweenBalls = Math.sqrt(xDiff * xDiff + yDiff * yDiff); //Pythagorean theorem
-		return distanceBetweenBalls <= Math.max(first.getR(), second.getR());
+		return distanceBetweenBalls <= first.getR() + second.getR();
 	}
 	
 	public void collideBalls(Ball first, Ball second) {
@@ -123,6 +116,23 @@ public class DummyModel implements IBouncingBallsModel {
 		//TODO: make vectors and use polar coordinates
 		
 		
+	}
+	
+	public PolarVector rectToPolar(RectVector c) {
+		double theta = Math.atan2(c.getY(), c.getX());
+		double r = c.getX() / Math.cos(theta);
+		
+		return new PolarVector(r, theta);
+	}
+	
+	public RectVector polarToRect(PolarVector c) {
+		double r = c.getR();
+		double theta = c.getTheta();
+		
+		double x = r * Math.cos(theta);
+		double y = r * Math.sin(theta);
+		
+		return new RectVector(x, y);
 	}
 	
 	@Override
