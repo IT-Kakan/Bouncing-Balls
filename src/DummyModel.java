@@ -22,13 +22,14 @@ public class DummyModel implements IBouncingBallsModel {
 		double vy = 1;
 		double r = 1;
 		
-		addBall(0, 0, 0, 0, r);
+		addBall(x, y, vx, 0, r);
+		addBall(x, y, vx, 0, r);
 		//addBall(x+2, y+2, vx-1, vy+1, r+0.2);
 	}
 
 	@Override
-	public void tick(double deltaT) {
-		for (Ball b : balls) {
+	public void tick(double deltaT) {		
+		for (Ball b : balls) {			
 			double x = b.getX();
 			double y = b.getY();
 			double r = b.getR();
@@ -42,6 +43,23 @@ public class DummyModel implements IBouncingBallsModel {
 			
 			b.tick(deltaT);
 		}
+		
+		/* A collision between the balls can be calculated
+		 * in the following way. As with collision with a wall
+		 * the velocity tangential to the surface of the ball
+		 * is not affected.
+		 * 
+		 * The velocity along the line between the centre of
+		 * the ball is changed under conservation of the total
+		 * kinetic energy mv^2/2 and momentum mv of the two
+		 * balls.
+		 * 
+		 * Begin by trying with the simple case of two equal balls.
+		 * (Note that to do this calculation you must make a change
+		 * of coordinates. An easy way to do this is to implement
+		 * the subroutines rectToPolar and polarToRect and debug
+		 * these before you use them!)
+		 */
 	}
 
 	public void addBall(double x, double y, double vx, double vy, double r) {

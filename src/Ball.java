@@ -3,9 +3,10 @@ import java.awt.geom.Ellipse2D;
 public class Ball {
 	
 	/* Gravitational constant */
-	private static double g = 9.82;
+	private static final double g = 9.82;
 	
-	private double x, y, vx, vy, ax, ay, r, m;
+	private double x, y, vx, vy, r, m;
+	private final double ax, ay;
 	
 	public Ball(double x, double y, double vx, double vy, double r) {
 		this.x = x;
@@ -15,8 +16,9 @@ public class Ball {
 		this.r = r;
 		m = 1;
 		
-		this.ax = 0;
-		this.ay = 0;//-1 * g;
+		this.ax = 0; //No acceleration along the x axis, only gravity
+		this.ay = -g; /* This is constant and never changes. The acceleration is never
+		changed as there is never any new energy added */
 	}
 	
 	public void tick(double deltaT) {
@@ -28,8 +30,10 @@ public class Ball {
 		x += vx * deltaT;
 		y += vy * deltaT;
 		
-		vx += ax * deltaT;
 		vy += ay * deltaT;
+		
+		//vx += ax * deltaT;
+		//vy += ay * deltaT;
 	}
 	
 	public Ellipse2D getBall() {
