@@ -1,6 +1,7 @@
 import java.awt.geom.Ellipse2D;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 public class DummyModel implements IBouncingBallsModel {
 
@@ -21,25 +22,43 @@ public class DummyModel implements IBouncingBallsModel {
 		double vx = 2.3;
 		double vy = 1;
 		double r = 1;
+		double m = 1;
+	
+		addBall(x, y, 0, 0, r, m); //Test gravity
+		addBall(x, y+3, 0, 0, r, m); //Test collision
 		
-		addBall(x, y, vx, 0, r);
-		addBall(x, y, vx, 0, r);
+//		addBall(x, y, vx, 0, r);
+//		addBall(x, y, vx, 0, r);
 		//addBall(x+2, y+2, vx-1, vy+1, r+0.2);
 	}
 
 	@Override
-	public void tick(double deltaT) {		
-		for (Ball b : balls) {			
-			double x = b.getX();
-			double y = b.getY();
-			double r = b.getR();
+	public void tick(double deltaT) {	
+		for (Ball b : balls) {
 			
-			if (x < r || x > areaWidth - r) {
+			if (ballHitsWall(b)) {
 				b.reverseXVelocity();
 			}
-			if (y < r || y > areaHeight - r) {
+			if (ballHitsFloorOrCeiling(b)) {
 				b.reverseYVelocity();
 			}
+			
+			for (Ball b2 : balls) {
+				if (b != b2 && ballHitsBall(b, b2)) {
+					//System.exit(0);
+					//collideBalls(b, b2);
+					
+					//Testa lodrät kollision
+					
+					
+					b.reverseYVelocity();
+					b2.reverseYVelocity();
+					
+					
+					
+				}
+			}
+			
 			
 			b.tick(deltaT);
 		}
@@ -62,8 +81,48 @@ public class DummyModel implements IBouncingBallsModel {
 		 */
 	}
 
-	public void addBall(double x, double y, double vx, double vy, double r) {
-		balls.add(new Ball(x, y, vx, vy, r));
+	public void addBall(double x, double y, double vx, double vy, double r, double m) {
+		balls.add(new Ball(x, y, vx, vy, r, m));
+	}
+	
+	/*
+	 * Determines whether or not the ball will hit a wall this tick. (needs to be more exact?)
+	 */
+	public boolean ballHitsWall(Ball ball) {
+		double ballRadius = ball.getR();
+		double xPos = ball.getX();
+		return xPos < ballRadius || xPos > areaWidth - ballRadius;
+	}
+	
+	/*
+	 * Determines whether or not the ball will hit the floor or the ceiling this tick. (needs to be more exact?)
+	 */
+	public boolean ballHitsFloorOrCeiling(Ball ball) {
+		double ballRadius = ball.getR();
+		double yPos = ball.getY();
+		return yPos < ballRadius || yPos > areaHeight - ballRadius;
+		
+	}
+	
+	/*
+	 * Calculates whether or not the two balls have hit each other.
+	 */
+	public boolean ballHitsBall(Ball first, Ball second) {
+		double xDiff = Math.abs(first.getX() - second.getX());
+		double yDiff = Math.abs(first.getY() - second.getY());
+		double distanceBetweenBalls = Math.sqrt(xDiff * xDiff + yDiff * yDiff); //Pythagorean theorem
+		return distanceBetweenBalls <= Math.max(first.getR(), second.getR());
+	}
+	
+	public void collideBalls(Ball first, Ball second) {
+		double xDiff = first.getX() - second.getX();
+		double yDiff = first.getY() - second.getY();
+		double angleMagnitude = Math.sqrt(xDiff * xDiff + yDiff * yDiff); //Pythagorean theorem
+		double angle = Math.atan2(yDiff, xDiff);
+		//TODO: finish
+		//TODO: make vectors and use polar coordinates
+		
+		
 	}
 	
 	@Override

@@ -8,13 +8,13 @@ public class Ball {
 	private double x, y, vx, vy, r, m;
 	private final double ax, ay;
 	
-	public Ball(double x, double y, double vx, double vy, double r) {
+	public Ball(double x, double y, double vx, double vy, double r, double m) {
 		this.x = x;
 		this.y = y;
 		this.vx = vx;
 		this.vy = vy;
 		this.r = r;
-		m = 1;
+		this.m = m;
 		
 		this.ax = 0; //No acceleration along the x axis, only gravity
 		this.ay = -g; /* This is constant and never changes. The acceleration is never
@@ -54,6 +54,9 @@ public class Ball {
 	}
 	public double getR() {
 		return r;
+	}
+	public double getM() {
+		return m;
 	}
 	public void reverseXVelocity() {
 		vx *= -1;
