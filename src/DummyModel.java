@@ -25,12 +25,21 @@ public class DummyModel implements IBouncingBallsModel {
 	
 		addBall(x, y, 0.5, 0, r, m);
 		addBall(x, y+3, 0, 0, r+0.5, m*2);
-		addBall(x+1, y, 0, 0.2, r+0.2, m+0.5);
+		//addBall(x+1, y, 0, 0.2, r+0.2, m+0.5);
 	}
 
 	@Override
-	public void tick(double deltaT) {	
-		for (Ball b : balls) {
+	public void tick(double deltaT) {
+		
+		for (int i = 0; i < balls.size(); i++) {
+			Ball b = balls.get(i);
+			for (int j = 0; j < balls.size(); j++) {
+				Ball b2 = balls.get(j);
+				if (b != b2) {
+					collision(b, b2);
+				}
+			}
+			
 			if (ballHitsWall(b)) {
 				b.reverseXVelocity();
 			}
@@ -38,11 +47,6 @@ public class DummyModel implements IBouncingBallsModel {
 				b.reverseYVelocity();
 			}
 			
-			for (Ball b2 : balls) {
-				if (b != b2) {
-					collision(b, b2);
-				}
-			}
 			b.tick(deltaT);
 		}
 	}
