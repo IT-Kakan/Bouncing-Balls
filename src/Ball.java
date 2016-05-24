@@ -5,14 +5,17 @@ public class Ball {
 	/* Gravitational constant */
 	private static final double g = 9.82;
 	
-	private double x, y, vx, vy, r, m;
+	private double r, m;
+	private RectVector coordinates, velocity;
 	private final double ax, ay;
 	
 	public Ball(double x, double y, double vx, double vy, double r, double m) {
-		this.x = x;
-		this.y = y;
-		this.vx = vx;
-		this.vy = vy;
+		coordinates = new RectVector(x, y);
+		velocity = new RectVector(vx, vy);
+		//this.x = x;
+		//this.y = y;
+		//this.vx = vx;
+		//this.vy = vy;
 		this.r = r;
 		this.m = m;
 		
@@ -27,30 +30,38 @@ public class Ball {
 		
 		//F = m y''
 		
-		x += vx * deltaT;
-		y += vy * deltaT;
+		coordinates.setX(getX() + getXVelocity() * deltaT);
+		coordinates.setY(getY() + getYVelocity() * deltaT);
+		//x += vx * deltaT;
+		//y += vy * deltaT;
 		
-		vy += ay * deltaT;
+		//velocity.setY(getYVelocity() + ay * deltaT);
 		
 		//vx += ax * deltaT;
 		//vy += ay * deltaT;
 	}
 	
 	public Ellipse2D getBall() {
-		return new Ellipse2D.Double(x - r, y - r, 2 * r, 2 * r);
+		return new Ellipse2D.Double(getX() - r, getY() - r, 2 * r, 2 * r);
 	}
 	
 	public double getX() {
-		return x;
+		return coordinates.getX();
 	}
 	public double getY() {
-		return y;
+		return coordinates.getY();
+	}
+	public RectVector getCoordinates() {
+		return coordinates;
+	}
+	public RectVector getVelocity() {
+		return velocity;
 	}
 	public double getXVelocity() {
-		return vx;
+		return velocity.getX();
 	}
 	public double getYVelocity() {
-		return vy;
+		return velocity.getY();
 	}
 	public double getR() {
 		return r;
@@ -59,10 +70,13 @@ public class Ball {
 		return m;
 	}
 	public void reverseXVelocity() {
-		vx *= -1;
+		velocity.setX(velocity.getX() * -1);
 	}
 	public void reverseYVelocity() {
-		vy *= -1;
+		velocity.setY(velocity.getY() * -1);
+	}
+	public void setCoordinates(RectVector coords) {
+		coordinates = coords;
 	}
 	
 	
