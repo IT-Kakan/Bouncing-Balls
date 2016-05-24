@@ -12,10 +12,6 @@ public class Ball {
 	public Ball(double x, double y, double vx, double vy, double r, double m) {
 		coordinates = new RectVector(x, y);
 		velocity = new RectVector(vx, vy);
-		//this.x = x;
-		//this.y = y;
-		//this.vx = vx;
-		//this.vy = vy;
 		this.r = r;
 		this.m = m;
 		
@@ -25,20 +21,13 @@ public class Ball {
 	}
 	
 	public void tick(double deltaT) {
-		//y' = h(y,t)
+		//Euler's method
 		//y(t+deltaT) = y(t) + y'(t) * deltaT
-		
-		//F = m y''
 		
 		coordinates.setX(getX() + getXVelocity() * deltaT);
 		coordinates.setY(getY() + getYVelocity() * deltaT);
-		//x += vx * deltaT;
-		//y += vy * deltaT;
 		
-		//velocity.setY(getYVelocity() + ay * deltaT);
-		
-		//vx += ax * deltaT;
-		//vy += ay * deltaT;
+		velocity.setY(getYVelocity() + ay * deltaT);
 	}
 	
 	public Ellipse2D getBall() {
