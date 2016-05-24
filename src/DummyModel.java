@@ -8,7 +8,6 @@ public class DummyModel implements IBouncingBallsModel {
 	private final double areaWidth;
 	private final double areaHeight;
 
-	//private double x, y, vx, vy, r;
 	private List<Ball> balls;
 
 	public DummyModel(double width, double height) {
@@ -21,15 +20,12 @@ public class DummyModel implements IBouncingBallsModel {
 		double y = 2;
 		double vx = 2.3;
 		double vy = 1;
-		double r = 1;
+		double r = 0.5;
 		double m = 1;
 	
-		addBall(x, y, 0, 0, r, m); //Test gravity
-		addBall(x, y+3, 0, 0, r, m); //Test collision
-		
-//		addBall(x, y, vx, 0, r);
-//		addBall(x, y, vx, 0, r);
-		//addBall(x+2, y+2, vx-1, vy+1, r+0.2);
+		addBall(x, y, 0.5, 0, r, m);
+		addBall(x, y+3, 0, 0, r+0.5, m*2);
+		addBall(x+1, y, 0, 0.2, r+0.2, m+0.5);
 	}
 
 	@Override
@@ -43,35 +39,12 @@ public class DummyModel implements IBouncingBallsModel {
 			}
 			
 			for (Ball b2 : balls) {
-				if (b != b2 && ballHitsBall(b, b2)) {
-					//System.exit(0);
-					//collideBalls(b, b2);
-					
-					//Testa lodrät kollision
-					
-					b.reverseYVelocity();
-					b2.reverseYVelocity();		
+				if (b != b2) {
+					collision(b, b2);
 				}
 			}
 			b.tick(deltaT);
 		}
-		
-		/* A collision between the balls can be calculated
-		 * in the following way. As with collision with a wall
-		 * the velocity tangential to the surface of the ball
-		 * is not affected.
-		 * 
-		 * The velocity along the line between the centre of
-		 * the ball is changed under conservation of the total
-		 * kinetic energy mv^2/2 and momentum mv of the two
-		 * balls.
-		 * 
-		 * Begin by trying with the simple case of two equal balls.
-		 * (Note that to do this calculation you must make a change
-		 * of coordinates. An easy way to do this is to implement
-		 * the subroutines rectToPolar and polarToRect and debug
-		 * these before you use them!)
-		 */
 	}
 
 	public void addBall(double x, double y, double vx, double vy, double r, double m) {
@@ -79,48 +52,50 @@ public class DummyModel implements IBouncingBallsModel {
 	}
 	
 	/*
-	 * Determines whether or not the ball will hit a wall this tick. (needs to be more exact?)
+	 * Determines whether or not the ball will hit a wall this tick.
 	 */
 	public boolean ballHitsWall(Ball ball) {
 		double ballRadius = ball.getR();
 		double xPos = ball.getX();
-		return xPos < ballRadius || xPos > areaWidth - ballRadius;
+		
+		double collisionLeft = 0 + ballRadius;
+		double collisionRight = areaWidth - ballRadius;
+		
+		if ((ball.getXVelocity() <= 0) && (xPos <= collisionLeft)) {
+			return true;
+		} else if ((ball.getXVelocity() >= 0) && (xPos >= collisionRight)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	/*
-	 * Determines whether or not the ball will hit the floor or the ceiling this tick. (needs to be more exact?)
+	 * Determines whether or not the ball will hit the floor or the ceiling this tick.
 	 */
 	public boolean ballHitsFloorOrCeiling(Ball ball) {
 		double ballRadius = ball.getR();
 		double yPos = ball.getY();
-		return yPos < ballRadius || yPos > areaHeight - ballRadius;
 		
-	}
-	
-	/*
-	 * Calculates whether or not the two balls have hit each other.
-	 */
-	public boolean ballHitsBall(Ball first, Ball second) {
-		double xDiff = Math.abs(first.getX() - second.getX());
-		double yDiff = Math.abs(first.getY() - second.getY());
-		double distanceBetweenBalls = Math.sqrt(xDiff * xDiff + yDiff * yDiff); //Pythagorean theorem
-		return distanceBetweenBalls <= first.getR() + second.getR();
-	}
-	
-	public void collideBalls(Ball first, Ball second) {
-		double xDiff = first.getX() - second.getX();
-		double yDiff = first.getY() - second.getY();
-		double angleMagnitude = Math.sqrt(xDiff * xDiff + yDiff * yDiff); //Pythagorean theorem
-		double angle = Math.atan2(yDiff, xDiff);
-		//TODO: finish
-		//TODO: make vectors and use polar coordinates
+		double collisionHigh = areaHeight - ballRadius;
+		double collisionLow = 0 + ballRadius;
 		
-		
+		if ((ball.getYVelocity() >= 0) && (yPos >= collisionHigh)) {
+			return true;
+		} else if ((ball.getYVelocity() <= 0) && (yPos <= collisionLow)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public PolarVector rectToPolar(RectVector c) {
+		double r = Math.sqrt(c.getX()*c.getX() + c.getY()*c.getY());
+		
 		double theta = Math.atan2(c.getY(), c.getX());
-		double r = c.getX() / Math.cos(theta);
+		if (c.getX() < 0) {
+			theta += Math.PI;
+		}
 		
 		return new PolarVector(r, theta);
 	}
@@ -133,6 +108,38 @@ public class DummyModel implements IBouncingBallsModel {
 		double y = r * Math.sin(theta);
 		
 		return new RectVector(x, y);
+	}
+
+	public void rotate(RectVector r, double rotateAngle) {
+		PolarVector p = rectToPolar(r);
+		p.setTheta(p.getTheta() + rotateAngle);
+		
+		RectVector newR = polarToRect(p);
+		r.setX(newR.getX());
+		r.setY(newR.getY());
+	}
+
+	public void	collision(Ball b1, Ball b2) {
+		double deltaX = b1.getX() - b2.getX();
+		double deltaY = b1.getY() - b2.getY();
+
+		double collisionDistance = b1.getR() + b2.getR(); 
+		
+		if (deltaX*deltaX + deltaY*deltaY < collisionDistance*collisionDistance) {
+			double rotateAngle = Math.atan2(deltaY, deltaX);
+
+			rotate(b1.getVelocity(), -rotateAngle);
+			rotate(b2.getVelocity(), -rotateAngle);
+			
+			double I = b1.getM() * b1.getXVelocity() + b2.getM() * b2.getXVelocity();
+			double R = -(b2.getXVelocity() - b1.getXVelocity());
+			
+			b1.getVelocity().setX((I-R*b2.getM()) / (b1.getM() + b2.getM()));
+			b2.getVelocity().setX(R + b1.getXVelocity());
+			
+			rotate(b1.getVelocity(), rotateAngle);
+			rotate(b2.getVelocity(), rotateAngle);
+		}
 	}
 	
 	@Override
